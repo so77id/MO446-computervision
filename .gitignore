@@ -1,1 +1,8 @@
 /Makefile
+
+#Cache
+__pycache__
+
+# FILES
+input/
+output/
