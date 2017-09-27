@@ -35,7 +35,7 @@ URL_DOWNLOAD=$(TEMPLE_SPARCE_RING_URL)
 ZIP_FILE=input.zip
 
 #LISTS
-
+INPUT_LIST=templeSR_ang.txt
 
 
 # INPUTS
@@ -45,10 +45,11 @@ VIDEO_INPUT_1=p2-1.mp4
 VIDEO_OUTPUT=p2-2b.mp4
 
 # SRCs
+KP_REVIEW=key_points_review.py
 
 # ARGS
 
-all: init_pipeline
+all: kp_review
 
 	@echo "Finish"
 
@@ -65,6 +66,10 @@ init_pipeline:
 	@$(WGET_COMMAND) $(URL_DOWNLOAD) -O $(ZIP_FOLDER)/$(ZIP_FILE)
 	@$(UNZIP_COMMAND) -j $(ZIP_FOLDER)/$(ZIP_FILE) -d $(INPUT_FOLDER)
 	@$(RM_COMMAND) -R $(ZIP_FOLDER)
+
+kp_review:
+	$(call cecho,"[Key points review]")
+	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(KP_REVIEW) -i $(INPUT_FOLDER)/$(INPUT_LIST) -if $(INPUT_FOLDER) -d
 
 
 
