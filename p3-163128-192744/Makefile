@@ -13,7 +13,7 @@ UNZIP_COMMAND=unzip
 
 # FOLDERS
 INPUT_FOLDER=./input
-ZIP_FOLDER=$(INPUT_FOLDER)/zip
+#ZIP_FOLDER=$(INPUT_FOLDER)/zip
 OUTPUT_FOLDER=./output
 SRC_FOLDER=./src
 
@@ -29,27 +29,38 @@ DINO_URL=http://vision.middlebury.edu/mview/data/data/dino.zip
 DINO_RING_URL=http://vision.middlebury.edu/mview/data/data/dinoRing.zip
 DINO_SPARCE_RING_URL=http://vision.middlebury.edu/mview/data/data/dinoSparseRing.zip
 
-URL_DOWNLOAD=$(TEMPLE_SPARCE_RING_URL)
+# VIDEOS URLs
+P3_1_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-1.mp4
+P3_2_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-2.mp4
+P3_3_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-3.mp4
+
+#URL_DOWNLOAD=$(TEMPLE_SPARCE_RING_URL)
 
 # ZIP names
-ZIP_FILE=input.zip
+#ZIP_FILE=input.zip
 
 #LISTS
-INPUT_LIST=templeSR_ang.txt
+#INPUT_LIST=templeSR_ang.txt
+
+#FileNames
+P3_1_FILE=p3-1.mp4
+P3_2_FILE=p3-2.mp4
+P3_3_FILE=p3-3.mp4
 
 
 # INPUTS
-VIDEO_INPUT_1=p2-1.mp4
+VIDEO_INPUT=$(P3_3_FILE)
 
 # OUTPUTS
-VIDEO_OUTPUT=p2-2b.mp4
+VIDEO_OUTPUT=$(P3_3_FILE)
 
 # SRCs
 KP_REVIEW=key_points_review.py
+OF_REVIEW=optical_flow_review.py
 
 # ARGS
 
-all: kp_review
+all: of_review
 
 	@echo "Finish"
 
@@ -57,19 +68,21 @@ init_pipeline:
 	$(call cecho,"[Start up configs]")
 	$(call cecho,"- Creating input/output folders")
 	@$(MKDIR_COMMAND) -p $(INPUT_FOLDER)
-	@$(RM_COMMAND) -f -R $(INPUT_FOLDER)/*
-	@$(MKDIR_COMMAND) -p $(ZIP_FOLDER)
 	@$(MKDIR_COMMAND) -p $(OUTPUT_FOLDER)
 
-	$(call cecho,"- Downloading video")
-	@# Download temple
-	@$(WGET_COMMAND) $(URL_DOWNLOAD) -O $(ZIP_FOLDER)/$(ZIP_FILE)
-	@$(UNZIP_COMMAND) -j $(ZIP_FOLDER)/$(ZIP_FILE) -d $(INPUT_FOLDER)
-	@$(RM_COMMAND) -R $(ZIP_FOLDER)
+	$(call cecho,"- Downloading videos")
+	@# Download videos
+	@$(WGET_COMMAND) $(P3_1_URL) -O $(INPUT_FOLDER)/$(P3_1_FILE)
+	@$(WGET_COMMAND) $(P3_2_URL) -O $(INPUT_FOLDER)/$(P3_2_FILE)
+	@$(WGET_COMMAND) $(P3_3_URL) -O $(INPUT_FOLDER)/$(P3_3_FILE)
 
 kp_review:
 	$(call cecho,"[Key points review]")
-	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(KP_REVIEW) -i $(INPUT_FOLDER)/$(INPUT_LIST) -if $(INPUT_FOLDER) -d
+	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(KP_REVIEW) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -d
+
+of_review:
+	$(call cecho,"[Optical flow review]")
+	$(PYTHON_COMMAND) $(SRC_FOLDER)/$(OF_REVIEW) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -o $(OUTPUT_FOLDER)/$(VIDEO_OUTPUT) -d
 
 
 

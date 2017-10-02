@@ -11,8 +11,7 @@ def get_motion_map(V, neigh = 15):
 
 	"""
 	Recieves a video represented by an np.array V[t][h][w]
-	
-	It does not work still!
+"""
 
 	dt = np.diff(V, axis = 0)
 	dx = np.diff(V, axis = 2)
@@ -40,9 +39,8 @@ def get_motion_map(V, neigh = 15):
 					A[k,1] =  dy[i + wi, j + wj]
 					b[k]   = -dt[i + wi, j + wj]
 					k++
-			
+
 
 		h = lstsq(A, b)
 
-"""
 
