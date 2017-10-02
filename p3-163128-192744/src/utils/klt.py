@@ -53,8 +53,8 @@ def get_flow(frame0, frame1, p0, neigh = 15, s0 = None):
 				k += 1
 
 		p1[p] = p0[p] + lstsq(A, -b)[0]
-		st[p] = 0 <= p1[p,0] < frame1.shape[0] - 1 \
-				and 0 <= p1[p,1] < frame1.shape[1] - 1
+		st[p] = 0 <= p1[p,0] < frame1.shape[1] - 1 \
+				and 0 <= p1[p,1] < frame1.shape[0] - 1
 
 	return p1, st
 
