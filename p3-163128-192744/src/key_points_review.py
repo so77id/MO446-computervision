@@ -9,6 +9,7 @@ import sys
 import argparse
 
 import utils.img_utils as iu
+import utils.key_points as kps
 
 
 DEBUG=False
@@ -16,44 +17,46 @@ DEBUG=False
 def main(argv):
     # Parse arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-i', '--input_list',  help='Input list',    required=True)
-    parser.add_argument('-if', '--input_folder',  help='Input folder',    required=True)
-    #parser.add_argument('-o', '--output_image',  help='Output image',    required=True)
+    parser.add_argument('-i', '--input_video',  help='Input video',    required=True)
     parser.add_argument('-d',  '--debug',    help='Debuggin mode', action='store_true')
     ARGS = parser.parse_args()
 
     global DEBUG
     DEBUG = ARGS.debug
 
-    input_list = open(ARGS.input_list, 'r')
+    cap = cv2.VideoCapture(ARGS.input_video)
 
-    frame0 = None
-    frame1 = None
+    if cap.isOpened():
+        ret, frame0 = cap.read()
+        if not ret:
+            return
 
-    for line in input_list:
-        file_name = ARGS.input_folder + "/" + line.split(" ")[-1].split("\n")[0]
-        print(file_name)
-        img  = cv2.imread(file_name)
-        gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+        gray0 = cv2.cvtColor(frame0,cv2.COLOR_BGR2GRAY)
 
-        if frame0 is None:
-            frame0 = img
+        p0, _ = kps.detect_points(gray0)
 
-        sift = cv2.xfeatures2d.SIFT_create()
-        key_points = sift.detect(gray)
+        while(1):
+                ret, frame1 = cap.read()
+                if not ret:
+                    break
 
-        frame1 = cv2.drawKeypoints(gray,key_points, gray)
+                gray1 = cv2.cvtColor(frame1,cv2.COLOR_BGR2GRAY)
 
-        grid = iu.create_grid(frame0, frame1)
+                p1, _ = kps.detect_points(gray1)
 
-        if DEBUG:
-            cv2.imshow("grid", grid)
-            # cv2.imshow("DIFF", diff)
+                frame1 = cv2.drawKeypoints(frame1, p1, frame1)
 
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+                grid = iu.create_grid(frame0, frame1)
 
-        frame0 = frame1
+
+                if DEBUG:
+                    cv2.imshow("grid", grid)
+                    # cv2.imshow("DIFF", diff)
+
+                    cv2.waitKey(0)
+                    cv2.destroyAllWindows()
+
+                frame0 = frame1
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

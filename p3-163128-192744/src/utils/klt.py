@@ -52,32 +52,7 @@ def get_flow(frame0, frame1, p0, neigh = 15, s0 = None):
 
 def get_motion_map(V, neigh = 15):
 	pass
-	"""
-	Recieves a video represented by an np.array V[t][h][w]
 
-
-	dt = np.diff(V, axis = 0)
-	dx = np.diff(V, axis = 2)
-	dy = np.diff(V, axis = 1)
-
-	w_ran = range(-(neigh // 2), (neigh // 2) + (neigh % 2) )
-	X = key_points.decect_corners_harris(V[0])
-
-	for f in range(1, V.shape[0]):
-
-		A = np.zeros((neigh ** 2, 2))
-		b = np.zeros(neigh ** 2)
-
-		for p in X:
-
-			x = p[0]
-			y = p[1]
-
-			k = 0
-			for wi in w_ran:
-				for wj in w_ran:
-
-	h = lstsq(A, b)
 """
 
 if __name__ == '__main__':
@@ -108,3 +83,4 @@ if __name__ == '__main__':
 	print(p1[st==1])
 	print(p1_[st==1].astype(np.int16))
 	#print(p1_[st==1] - p1[st==1])
+	"""
