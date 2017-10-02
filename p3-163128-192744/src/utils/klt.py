@@ -6,7 +6,15 @@ import cv2
 import numpy as np
 from numpy.linalg import lstsq
 
+def optical_flow(frame0, frame1, p0, mode="cv2", neigh = 15, s0 = None):
+	if mode is "cv2":
+		p1, st = get_cv2_flow(frame0, frame1, p0)
 
+	elif mode is "own":
+		p1, st = get_flow(frame0, frame1, p0.reshape((-1,2)), neigh, s0)
+		p1 = p1.reshape((-1,1,2))
+
+	return p1, st
 
 def get_flow(frame0, frame1, p0, neigh = 15, s0 = None):
 
@@ -49,6 +57,18 @@ def get_flow(frame0, frame1, p0, neigh = 15, s0 = None):
 				and 0 <= p1[p,1] < frame1.shape[1] - 1
 
 	return p1, st
+
+
+def get_cv2_flow(frame0, frame1, p0):
+	#Parameters for lucas kanade optical flow
+	lk_params = dict( winSize  = (15,15),
+	                  maxLevel = 2,
+	                  criteria = (cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+
+	p1, st, err = cv2.calcOpticalFlowPyrLK(frame0, frame1, p0, None, **lk_params)
+
+	return p1, st
+
 
 def get_motion_map(V, neigh = 15):
 	pass
