@@ -57,10 +57,11 @@ VIDEO_OUTPUT=$(P3_3_FILE)
 # SRCs
 KP_REVIEW=key_points_review.py
 OF_REVIEW=optical_flow_review.py
+PIPELINE=pipeline.py
 
 # ARGS
 
-all: of_review
+all: pipeline
 
 	@echo "Finish"
 
@@ -84,6 +85,9 @@ of_review:
 	$(call cecho,"[Optical flow review]")
 	$(PYTHON_COMMAND) $(SRC_FOLDER)/$(OF_REVIEW) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -o $(OUTPUT_FOLDER)/$(VIDEO_OUTPUT) -d
 
+pipeline:
+	$(call cecho,"[Pipeline]")
+	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(PIPELINE) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -d
 
 
 clean:
