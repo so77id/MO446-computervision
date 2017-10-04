@@ -9,7 +9,7 @@ from numpy.linalg import cholesky
 from numpy.linalg import inv
 from scipy.linalg import sqrtm
 
-RANK=3
+
 
 # n (n+1) / 2
 def comb(n):
@@ -28,7 +28,7 @@ def squareform_diagfill(arr1D):
     return out
 
 
-def g_t(a, b):
+def g_t(a, b, RANK=4):
     M = np.multiply(np.repeat(a, RANK, axis=0), np.repeat(b.T, RANK, axis=1))
     M -= np.diag(np.diag(M)/2)
     return M[np.triu_indices(RANK)] + M.T[np.triu_indices(RANK)]
@@ -39,40 +39,32 @@ def get_c(F):
     z = np.zeros((F))
     return np.concatenate((o,z))
 
-def get_g(M):
+def get_g(M, RANK=4):
     F = M.shape[0]//2
 
     G = np.zeros((3*F, comb(RANK)))
 
     for i in range(F):
-        G[i, :] = g_t(M[i], M[i])
-        G[i+F, :] = g_t(M[i+F], M[i+F])
-        G[i+(2*F), :] = g_t(M[i], M[i+F])
+        G[i, :] = g_t(M[i], M[i], RANK)
+        G[i+F, :] = g_t(M[i+F], M[i+F], RANK)
+        G[i+(2*F), :] = g_t(M[i], M[i+F], RANK)
 
     return G
 
-def sfm(W):
+def sfm(W, RANK=4):
 
     a_f = np.mean(W, axis=1).reshape(W.shape[0], 1)
-    print(W)
     W_aprox = np.matrix(W - a_f)
-    print(W_aprox)
 
-    # O = np.ones((W.shape[0]//2, W.shape[1]))
-
-    # W_aprox = np.concatenate((W_aprox,O), axis=0)
-
-    print(W_aprox)
+    if RANK==4:
+        O = np.ones((W.shape[0]//2, W.shape[1]))
+        W_aprox = np.concatenate((W_aprox,O), axis=0)
 
     U, s, V = np.linalg.svd(W_aprox)
 
     U_ = U[:,:RANK]
     s_ = np.matrix(np.diag(s[:RANK]))
     V_ = V[:RANK,:]
-
-    print(U_.shape)
-    print(s_.shape)
-    print(V_.shape)
 
     s_sqrt = sqrtm(s_)
     M_hat = U_
@@ -81,15 +73,13 @@ def sfm(W):
     # Number of frames
     F = M_hat.shape[0]//2
 
-    G = get_g(M_hat)
+    G = get_g(M_hat, RANK)
     c = get_c(F)
 
     l = lstsq(G, c)[0]
 
     L = np.matrix(squareform_diagfill(l))
 
-    print(L)
-    # A = cholesky(L)
     try:
         A = cholesky(L)
     except Exception as e:

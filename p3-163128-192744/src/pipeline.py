@@ -16,18 +16,29 @@ import utils.meshlab as umesh
 
 
 DEBUG=False
+RANK=3
 
 
 def main(argv):
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_video',  help='Input video',    required=True)
-    parser.add_argument('-o', '--output_file',  help='Output video',    required=True)
+    parser.add_argument('-o', '--output_ply',  help='Output ply',    required=True)
+    parser.add_argument('-oi', '--output_image',  help='Output image',    required=True)
+    parser.add_argument('-md', '--detector',  help='Detector',    required=True)
+    parser.add_argument('-r', '--rank',  help='Rank',    required=True)
     parser.add_argument('-d',  '--debug',    help='Debuggin mode', action='store_true')
     ARGS = parser.parse_args()
 
     global DEBUG
     DEBUG = ARGS.debug
+    global RANK
+    RANK = int(ARGS.rank)
+    # print("Using")
+    # print("-----")
+    # print("Detector:", ARGS.detector)
+    # print("Rank :", ARGS.rank)
+    print("Calculating optical flow")
 
     cap = cv2.VideoCapture(ARGS.input_video)
     n_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
@@ -38,7 +49,10 @@ def main(argv):
             return
 
         gray0 = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-        _, p0 = kps.detect_points(gray0)
+        dp0, p0 = kps.detect_points(gray0, mode=ARGS.detector)
+
+        # Wrtie first frame
+        iu.draw_kp_and_write(ARGS.output_image, dp0, frame)
 
         # Get colors
         p0_ = p0.reshape(-1,2).astype(np.int)
@@ -68,6 +82,8 @@ def main(argv):
             V[n_frame, :] = p1[:, 0, 1]
             S*=st
 
+
+        print("Calculating structure for motion")
         S = S.flatten()
         U = U[:, S==1]
         V = V[:, S==1]
@@ -76,7 +92,7 @@ def main(argv):
 
         W = np.concatenate((U,V), axis=0)
 
-        M, S = usfm.sfm(W)
+        M, S = usfm.sfm(W, RANK)
 
 
         # M_0 = np.matrix(np.zeros((4,3)))
@@ -84,13 +100,16 @@ def main(argv):
         # M_0[:,1] = M[n_frames,:].transpose()
         # M_0[:,2] = np.cross(M[0,:], M[n_frames,:]).transpose()
 
-        # Complex to float
+        # Complex to float if cholesky not work
         S = S.astype(np.float64).transpose()
 
         # Normalization
-        # S = S/S[:,-1]
+        if RANK == 4:
+            S = S/S[:,-1]
 
-        umesh.write_ply(ARGS.output_file, S, colors)
+
+        print("Writing ply file")
+        umesh.write_ply(ARGS.output_ply, S, colors, RANK)
 
 
     cap.release()

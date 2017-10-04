@@ -23,3 +23,8 @@ def create_grid(img0, img1):
     assert(img0.shape == img1.shape)
 
     return np.concatenate((img0, img1), axis=1)
+
+def draw_kp_and_write(out_file, kps, img):
+    img = cv2.drawKeypoints(img, kps, img)
+    cv2.imwrite(out_file, img)
+    return

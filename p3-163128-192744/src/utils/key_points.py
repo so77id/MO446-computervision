@@ -49,11 +49,14 @@ def harris_corner(img, blocksize = 2, ksize = 3, k = 0.04, th = 0.1):
 	kps = np.concatenate((iind, jind), axis = 1)
 	return list_to_keypoints_hc(kps)
 
-
-
 def sift(img):
 	sift = cv2.xfeatures2d.SIFT_create()
 	key_points = sift.detect(img)
+	return key_points
+
+def orb(img):
+	orb = cv2.ORB_create()
+	key_points = orb.detect(img,None)
 	return key_points
 
 def gftt(img):
@@ -65,11 +68,16 @@ def gftt(img):
 
 	return list_to_keypoints_gftt(key_points)
 
-def detect_points(img, margin = 15):
+def detect_points(img, margin = 15, mode="sift"):
 
-	# kps = harris_corner(img)
-	kps = sift(img)
-	# kps = gftt(img)
+	if mode == "hc":
+		kps = harris_corner(img)
+	elif mode == "gftt":
+		kps = gftt(img)
+	elif mode == "sift":
+		kps = sift(img)
+	elif mode == "orb":
+		kps = orb(img)
 
 	kps_list = trim_borders(kps, img.shape, margin)
 	kps_matrix = list_to_matrix(kps_list)

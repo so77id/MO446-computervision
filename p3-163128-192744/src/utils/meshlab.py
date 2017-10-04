@@ -10,20 +10,20 @@ element vertex %(p_num)d
 property float x
 property float y
 property float z
-property uchar red
-property uchar green
 property uchar blue
+property uchar green
+property uchar red
 end_header
 '''
 
-RANK = 3
 
-def write_ply(filename, points, colors):
-    points = points[:,:RANK]
+
+def write_ply(filename, points, colors, RANK = 4):
+    if RANK == 4:
+        points = points[:,:(RANK-1)]
 
     concat = np.concatenate((points,colors.transpose()), axis=1)
 
     with open(filename, 'wb') as f:
-        print(concat.shape[0])
         f.write((ply_header % dict(p_num=concat.shape[0])).encode('utf-8'))
         np.savetxt(f, concat, fmt='%f %f %f %d %d %d ')
