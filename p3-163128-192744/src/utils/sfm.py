@@ -7,15 +7,32 @@ import numpy as np
 from numpy.linalg import lstsq
 from numpy.linalg import cholesky
 from numpy.linalg import inv
+from scipy.linalg import sqrtm
+
+RANK=3
+
+# n (n+1) / 2
+def comb(n):
+    return n*(n+1)//2
+
+def squareform_diagfill(arr1D):
+    n = int(np.sqrt(arr1D.size*2))
+    if (n*(n+1))//2!=arr1D.size:
+        print("Size of 1D array not suitable for creating a symmetric 2D array!")
+        return None
+    else:
+        R,C = np.triu_indices(n)
+        out = np.zeros((n,n),dtype=arr1D.dtype)
+        out[R,C] = arr1D
+        out[C,R] = arr1D
+    return out
 
 
 def g_t(a, b):
-    return np.array([a[0,0]*b[0,0],
-                    a[0,0]*b[0,1] + a[0,1]*b[0,0],
-                    a[0,0]*b[0,2]+a[0,2]*b[0,0],
-                    a[0,1]*b[0,1],
-                    a[0,1]*b[0,2]+a[0,2]*b[0,1],
-                    a[0,2]*b[0,2]])
+    M = np.multiply(np.repeat(a, RANK, axis=0), np.repeat(b.T, RANK, axis=1))
+    M -= np.diag(np.diag(M)/2)
+    return M[np.triu_indices(RANK)] + M.T[np.triu_indices(RANK)]
+
 
 def get_c(F):
     o = np.ones((2*F))
@@ -25,7 +42,7 @@ def get_c(F):
 def get_g(M):
     F = M.shape[0]//2
 
-    G = np.zeros((3*F, 6))
+    G = np.zeros((3*F, comb(RANK)))
 
     for i in range(F):
         G[i, :] = g_t(M[i], M[i])
@@ -37,18 +54,27 @@ def get_g(M):
 def sfm(W):
 
     a_f = np.mean(W, axis=1).reshape(W.shape[0], 1)
+    print(W)
     W_aprox = np.matrix(W - a_f)
+    print(W_aprox)
+
+    # O = np.ones((W.shape[0]//2, W.shape[1]))
+
+    # W_aprox = np.concatenate((W_aprox,O), axis=0)
+
+    print(W_aprox)
 
     U, s, V = np.linalg.svd(W_aprox)
 
-    U_ = U[:,:3]
-    s_ = np.matrix(np.diag(s[:3]))
-    V_ = V[:3,:]
+    U_ = U[:,:RANK]
+    s_ = np.matrix(np.diag(s[:RANK]))
+    V_ = V[:RANK,:]
 
     print(U_.shape)
     print(s_.shape)
     print(V_.shape)
 
+    s_sqrt = sqrtm(s_)
     M_hat = U_
     S_hat = s_ * V_
 
@@ -59,12 +85,15 @@ def sfm(W):
     c = get_c(F)
 
     l = lstsq(G, c)[0]
-    print(l.shape)
-    L = np.matrix([[l[0], l[1], l[2]],
-                   [l[1], l[3], l[4]],
-                   [l[2], l[4], l[5]]])
 
-    A = cholesky(L)
+    L = np.matrix(squareform_diagfill(l))
+
+    print(L)
+    # A = cholesky(L)
+    try:
+        A = cholesky(L)
+    except Exception as e:
+        A = sqrtm(L)
 
     M = M_hat * A
     S = inv(A) * S_hat

@@ -33,6 +33,7 @@ DINO_SPARCE_RING_URL=http://vision.middlebury.edu/mview/data/data/dinoSparseRing
 P3_1_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-1.mp4
 P3_2_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-2.mp4
 P3_3_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-3.mp4
+P3_4_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-4.mp4
 
 #URL_DOWNLOAD=$(TEMPLE_SPARCE_RING_URL)
 
@@ -43,16 +44,22 @@ P3_3_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-3.mp4
 #INPUT_LIST=templeSR_ang.txt
 
 #FileNames
-P3_1_FILE=p3-1.mp4
-P3_2_FILE=p3-2.mp4
-P3_3_FILE=p3-3.mp4
+P3_1_FILE=p3-1
+P3_2_FILE=p3-2
+P3_3_FILE=p3-3
+P3_4_FILE=p3-4
 
+VIDEO_EXTENSION=mp4
+MESHLAB_EXTENSION=ply
 
 # INPUTS
-VIDEO_INPUT=$(P3_3_FILE)
+INPUT_FILE=$(P3_3_FILE)
+
+VIDEO_INPUT=$(INPUT_FILE).$(VIDEO_EXTENSION)
 
 # OUTPUTS
-VIDEO_OUTPUT=$(P3_3_FILE)
+MESHLAB_OUTPUT=$(INPUT_FILE).$(MESHLAB_EXTENSION)
+VIDEO_OUTPUT=$(INPUT_FILE).$(VIDEO_EXTENSION)
 
 # SRCs
 KP_REVIEW=key_points_review.py
@@ -76,6 +83,7 @@ init_pipeline:
 	@$(WGET_COMMAND) $(P3_1_URL) -O $(INPUT_FOLDER)/$(P3_1_FILE)
 	@$(WGET_COMMAND) $(P3_2_URL) -O $(INPUT_FOLDER)/$(P3_2_FILE)
 	@$(WGET_COMMAND) $(P3_3_URL) -O $(INPUT_FOLDER)/$(P3_3_FILE)
+	@$(WGET_COMMAND) $(P3_3_URL) -O $(INPUT_FOLDER)/$(P3_4_FILE)
 
 kp_review:
 	$(call cecho,"[Key points review]")
@@ -87,7 +95,7 @@ of_review:
 
 pipeline:
 	$(call cecho,"[Pipeline]")
-	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(PIPELINE) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -d
+	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(PIPELINE) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -o $(OUTPUT_FOLDER)/$(MESHLAB_OUTPUT) -d
 
 
 clean:

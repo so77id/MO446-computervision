@@ -12,6 +12,7 @@ import utils.img_utils as iu
 import utils.key_points as kps
 import utils.klt as klt
 import utils.sfm as usfm
+import utils.meshlab as umesh
 
 
 DEBUG=False
@@ -21,6 +22,7 @@ def main(argv):
     # Parse arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input_video',  help='Input video',    required=True)
+    parser.add_argument('-o', '--output_file',  help='Output video',    required=True)
     parser.add_argument('-d',  '--debug',    help='Debuggin mode', action='store_true')
     ARGS = parser.parse_args()
 
@@ -38,11 +40,14 @@ def main(argv):
         gray0 = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
         _, p0 = kps.detect_points(gray0)
 
-        print(n_frames)
-        print(p0.shape)
+        # Get colors
+        p0_ = p0.reshape(-1,2).astype(np.int)
+        colors = frame[p0_[:,1], p0_[:,0]].transpose()
+
 
         U = np.zeros((n_frames, p0.shape[0]))
         V = np.zeros((n_frames, p0.shape[0]))
+        # O = np.ones((n_frames, p0.shape[0]))
         S = np.ones((p0.shape[0],1))
 
         U[0,:] = p0[:,0,0]
@@ -66,22 +71,26 @@ def main(argv):
         S = S.flatten()
         U = U[:, S==1]
         V = V[:, S==1]
+        colors = colors[:, S==1]
+        # O = O[:, S==1]
 
         W = np.concatenate((U,V), axis=0)
 
         M, S = usfm.sfm(W)
 
-        M_0 = np.matrix(np.zeros((3,3)))
-        M_0[:,0] = M[0,:].transpose()
-        M_0[:,1] = M[n_frames,:].transpose()
-        M_0[:,2] = np.cross(M[0,:], M[n_frames,:]).transpose()
 
-        print(M_0)
-        print(M_0.shape)
+        # M_0 = np.matrix(np.zeros((4,3)))
+        # M_0[:,0] = M[0,:].transpose()
+        # M_0[:,1] = M[n_frames,:].transpose()
+        # M_0[:,2] = np.cross(M[0,:], M[n_frames,:]).transpose()
 
-        # print(M)
-        # print(S)
+        # Complex to float
+        S = S.astype(np.float64).transpose()
 
+        # Normalization
+        # S = S/S[:,-1]
+
+        umesh.write_ply(ARGS.output_file, S, colors)
 
 
     cap.release()
