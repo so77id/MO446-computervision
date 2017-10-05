@@ -69,6 +69,7 @@ def main(argv):
 
         n_frame = 0
         while(1):
+
             ret, frame = cap.read()
             if not ret:
                 break
@@ -76,12 +77,12 @@ def main(argv):
             n_frame+=1
 
             gray1 = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-            p1, st = klt.optical_flow(gray0, gray1, p0, mode="cv2")
-
+            p1, st = klt.optical_flow(gray0, gray1, p0, mode="cv2", s0 = S)
             U[n_frame, :] = p1[:, 0, 0]
             V[n_frame, :] = p1[:, 0, 1]
-            S*=st
 
+            p0 = p1
+            gray0 = gray1
 
         print("Calculating structure for motion")
         S = S.flatten()
@@ -107,9 +108,17 @@ def main(argv):
         if RANK == 4:
             S = S/S[:,-1]
 
+        C = usfm.get_camera_centers(M, RANK) * 500
+
+        colors_ = np.zeros((3, C.shape[0] + S.shape[0]))
+        colors_[:,:S.shape[0]] = 255
+
+        print(S.shape)
+        print(C.shape)
 
         print("Writing ply file")
-        umesh.write_ply(ARGS.output_ply, S, colors, RANK)
+        #umesh.write_ply(ARGS.output_ply, S, colors, RANK)
+        umesh.write_ply(ARGS.output_ply, np.concatenate((S,C), axis=0), colors_, RANK)
 
 
     cap.release()

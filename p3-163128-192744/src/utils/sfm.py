@@ -8,7 +8,7 @@ from numpy.linalg import lstsq
 from numpy.linalg import cholesky
 from numpy.linalg import inv
 from scipy.linalg import sqrtm
-
+from scipy.linalg import norm
 
 
 # n (n+1) / 2
@@ -80,12 +80,27 @@ def sfm(W, RANK=4):
 
     L = np.matrix(squareform_diagfill(l))
 
-    try:
-        A = cholesky(L)
-    except Exception as e:
-        A = sqrtm(L)
+    #try:
+        #A = cholesky(L)
+    #except Exception as e:
+    A = sqrtm(L)
 
     M = M_hat * A
     S = inv(A) * S_hat
 
     return M, S
+
+def get_camera_centers(M, RANK):
+
+    F = M.shape[0] // 3
+
+    C = np.matrix(np.ones((F, RANK)))
+
+    for f in range(F):
+
+        P = M[[f, f+F, f+2*F]]
+        cr = -np.cross(M[f,:3],M[f + F,:3])
+        C[f,:3] = cr / norm(cr)
+        #C[f,:3] = -(inv(P[:,:3]) * (P[:,3])).flatten()
+
+    return C

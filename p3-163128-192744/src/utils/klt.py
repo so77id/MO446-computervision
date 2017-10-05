@@ -13,6 +13,7 @@ def optical_flow(frame0, frame1, p0, mode="cv2", neigh = 15, s0 = None):
 	elif mode is "own":
 		p1, st = get_flow(frame0, frame1, p0.reshape((-1,2)), neigh, s0)
 		p1 = p1.reshape((-1,1,2))
+		st = st.reshape((-1,1))
 
 	return p1, st
 
@@ -68,39 +69,3 @@ def get_cv2_flow(frame0, frame1, p0):
 	p1, st, err = cv2.calcOpticalFlowPyrLK(frame0, frame1, p0, None, **lk_params)
 
 	return p1, st
-
-
-def get_motion_map(V, neigh = 15):
-	pass
-
-"""
-
-if __name__ == '__main__':
-
-	feature_params = dict( maxCorners = 100,
-                       qualityLevel = 0.3,
-                       minDistance = 7,
-                       blockSize = 7 )
-
-	lk_params = dict(winSize  = (15,15), maxLevel = 2,
-                     criteria = (cv2.TERM_CRITERIA_EPS | \
-					             cv2.TERM_CRITERIA_COUNT, 10, 0.03))
-
-
-	frame0 =  cv2.cvtColor(cv2.imread('/home/juan/git/MO446-computervision/' + \
-				'p0-163128-192744/input/p0-1-0.png'), cv2.COLOR_BGR2GRAY)
-	frame1 = np.zeros(frame0.shape, dtype = frame0.dtype)
-	frame1[:-1,:-1] = frame0[1:,1:]
-	frame1 = np.transpose(frame0).reshape(frame0.shape)
-	#frame1 = frame0
-	p0 = cv2.goodFeaturesToTrack(frame0, mask = None, **feature_params)
-	p0 = p0.reshape((p0.shape[0], 2))
-
-	p1, st = get_flow(frame0, frame1, p0)
-	p1_, st_, _ = cv2.calcOpticalFlowPyrLK(frame0, frame1, p0, None, **lk_params)
-
-	print(p0[st==1])
-	print(p1[st==1])
-	print(p1_[st==1].astype(np.int16))
-	#print(p1_[st==1] - p1[st==1])
-	"""

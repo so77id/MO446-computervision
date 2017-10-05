@@ -61,9 +61,9 @@ def orb(img):
 
 def gftt(img):
 	feature_params = dict( maxCorners = 100,
-	                       qualityLevel = 0.3,
-	                       minDistance = 7,
-	                       blockSize = 7 )
+	                       qualityLevel = 0.6,
+	                       minDistance = 2,
+	                       blockSize = 3 )
 	key_points = cv2.goodFeaturesToTrack(img, mask = None, **feature_params)
 
 	return list_to_keypoints_gftt(key_points)
