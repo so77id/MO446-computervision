@@ -30,10 +30,12 @@ DINO_RING_URL=http://vision.middlebury.edu/mview/data/data/dinoRing.zip
 DINO_SPARCE_RING_URL=http://vision.middlebury.edu/mview/data/data/dinoSparseRing.zip
 
 # VIDEOS URLs
-P3_1_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-1.mp4
-P3_2_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-2.mp4
-P3_3_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-3.mp4
-P3_4_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-4.mp4
+P3_8_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-8.mp4
+
+# Results
+P3_8_OWN_PLY_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-8_own.ply
+P3_8_OWN_PLY_FILE=p3-8_own.ply
+
 
 #URL_DOWNLOAD=$(TEMPLE_SPARCE_RING_URL)
 
@@ -44,13 +46,7 @@ P3_4_URL=http://www.recod.ic.unicamp.br/~mrodriguez/computer_vision/p3/p3-4.mp4
 #INPUT_LIST=templeSR_ang.txt
 
 #FileNames
-P3_1_FILE=p3-1
-P3_2_FILE=p3-2
-P3_3_FILE=p3-3
-P3_4_FILE=p3-4
-P3_5_FILE=p3-5
-P3_6_FILE=p3-6
-P3_7_FILE=p3-7
+
 P3_8_FILE=p3-8
 
 VIDEO_EXTENSION=mp4
@@ -75,7 +71,7 @@ PIPELINE=pipeline.py
 RANK=3
 MODE_DETECTOR=sift
 
-all: pipeline
+all: init_pipeline pipeline
 
 	@echo "Finish"
 
@@ -86,11 +82,10 @@ init_pipeline:
 	@$(MKDIR_COMMAND) -p $(OUTPUT_FOLDER)
 
 	$(call cecho,"- Downloading videos")
-	@# Download videos
-	@$(WGET_COMMAND) $(P3_1_URL) -O $(INPUT_FOLDER)/$(P3_1_FILE).$(VIDEO_EXTENSION)
-	@$(WGET_COMMAND) $(P3_2_URL) -O $(INPUT_FOLDER)/$(P3_2_FILE).$(VIDEO_EXTENSION)
-	@$(WGET_COMMAND) $(P3_3_URL) -O $(INPUT_FOLDER)/$(P3_3_FILE).$(VIDEO_EXTENSION)
-	@$(WGET_COMMAND) $(P3_3_URL) -O $(INPUT_FOLDER)/$(P3_4_FILE).$(VIDEO_EXTENSION)
+	@$(WGET_COMMAND) $(P3_8_URL) -O $(INPUT_FOLDER)/$(VIDEO_INPUT)
+
+	$(call cecho,"- Downloading previous outputs")
+	@$(WGET_COMMAND) $(P3_8_OWN_PLY_URL) -O $(OUTPUT_FOLDER)/$(P3_8_OWN_PLY_FILE)
 
 kp_review:
 	$(call cecho,"[Key points review]")
@@ -98,7 +93,7 @@ kp_review:
 
 of_review:
 	$(call cecho,"[Optical flow review]")
-	$(PYTHON_COMMAND) $(SRC_FOLDER)/$(OF_REVIEW) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -o $(OUTPUT_FOLDER)/$(VIDEO_OUTPUT) -d
+	@$(PYTHON_COMMAND) $(SRC_FOLDER)/$(OF_REVIEW) -i $(INPUT_FOLDER)/$(VIDEO_INPUT) -o $(OUTPUT_FOLDER)/$(VIDEO_OUTPUT)
 
 pipeline:
 	$(call cecho,"[Pipeline]")

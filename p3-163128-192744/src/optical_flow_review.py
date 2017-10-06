@@ -64,7 +64,7 @@ def main(argv):
 
         # Create a mask image for drawing purposes
         mask = np.zeros_like(frame0)
-        mask_ = np.zeros_like(frame0_)
+        #mask_ = np.zeros_like(frame0_)
 
         img = None
         img_ = None
@@ -73,21 +73,21 @@ def main(argv):
                 count+=1
                 print(count)
                 ret, frame1 = cap.read()
-                frame1_ = frame1
+                # frame1_ = frame1
                 if not ret:
                     break
 
                 gray1 = cv2.cvtColor(frame1,cv2.COLOR_BGR2GRAY)
-                gray1_ = gray1
+                # gray1_ = gray1
 
                 p1, st = klt.optical_flow(gray0, gray1, p0, mode="own")
-                p1_, st_ = klt.optical_flow(gray0_, gray1_, p0_, mode="cv2")
+                # p1_, st_ = klt.optical_flow(gray0_, gray1_, p0_, mode="cv2")
 
                 good_new = p1[st==1]
                 good_old = p0[st==1]
 
-                good_new_ = p1_[st_==1]
-                good_old_ = p0_[st_==1]
+                # good_new_ = p1_[st_==1]
+                # good_old_ = p0_[st_==1]
 
                 for i,(new,old) in enumerate(zip(good_new,good_old)):
                     a,b = new.ravel()
@@ -96,31 +96,32 @@ def main(argv):
                     frame1 = cv2.circle(frame1,(a,b),5,color[i].tolist(),-1)
                 img = cv2.add(frame1,mask)
 
-                for i,(new,old) in enumerate(zip(good_new_,good_old_)):
-                    a,b = new.ravel()
-                    c,d = old.ravel()
-                    mask_ = cv2.line(mask_, (a,b),(c,d), color[i].tolist(), 2)
-                    frame1_ = cv2.circle(frame1_,(a,b),5,color[i].tolist(),-1)
-                img_ = cv2.add(frame1_,mask_)
+                # for i,(new,old) in enumerate(zip(good_new_,good_old_)):
+                #     a,b = new.ravel()
+                #     c,d = old.ravel()
+                #     mask_ = cv2.line(mask_, (a,b),(c,d), color[i].tolist(), 2)
+                #     frame1_ = cv2.circle(frame1_,(a,b),5,color[i].tolist(),-1)
+                # img_ = cv2.add(frame1_,mask_)
 
-                grid = iu.create_grid(img, img_)
+                # grid = iu.create_grid(img, img_)
 
 
-                video_out.write(grid)
+                # video_out.write(grid)
 
                 frame0 = frame1
                 gray0 = gray1
                 p0 = p1
 
-                frame0_ = frame1_
-                gray0_ = gray1_
-                p0_ = p1_
 
-        if DEBUG:
-            cv2.imshow("grid", grid)
+                # frame0_ = frame1_
+                # gray0_ = gray1_
+                # p0_ = p1_
 
-            cv2.waitKey(0)
-            cv2.destroyAllWindows()
+        cv2.imwrite("./own-klt.png", img)
+        # cv2.imwrite("cv2-klt.png", img_)
+
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
     cap.release()
