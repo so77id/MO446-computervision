@@ -77,7 +77,7 @@ def main(argv):
             n_frame+=1
 
             gray1 = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
-            p1, st = klt.optical_flow(gray0, gray1, p0, mode="cv2", s0 = S)
+            p1, st = klt.optical_flow(gray0, gray1, p0, mode="cv2", s0 = S, neigh =4)
             U[n_frame, :] = p1[:, 0, 0]
             V[n_frame, :] = p1[:, 0, 1]
 
@@ -113,11 +113,8 @@ def main(argv):
         colors_ = np.zeros((3, C.shape[0] + S.shape[0]))
         colors_[:,:S.shape[0]] = 255
 
-        print(S.shape)
-        print(C.shape)
-
         print("Writing ply file")
-        #umesh.write_ply(ARGS.output_ply, S, colors, RANK)
+
         umesh.write_ply(ARGS.output_ply, np.concatenate((S,C), axis=0), colors_, RANK)
 
 

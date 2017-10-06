@@ -52,39 +52,43 @@ def get_g(M, RANK=4):
     return G
 
 def sfm(W, RANK=4):
-
+    # Normalization
     a_f = np.mean(W, axis=1).reshape(W.shape[0], 1)
     W_aprox = np.matrix(W - a_f)
 
+    # Only in homogeneous
     if RANK==4:
         O = np.ones((W.shape[0]//2, W.shape[1]))
         W_aprox = np.concatenate((W_aprox,O), axis=0)
 
+    # SVD
     U, s, V = np.linalg.svd(W_aprox)
 
     U_ = U[:,:RANK]
     s_ = np.matrix(np.diag(s[:RANK]))
     V_ = V[:RANK,:]
 
-    s_sqrt = sqrtm(s_)
+    # Get hat variables
     M_hat = U_
     S_hat = s_ * V_
 
     # Number of frames
     F = M_hat.shape[0]//2
 
+    # Get linear system
     G = get_g(M_hat, RANK)
     c = get_c(F)
 
+    # Solve linear system
     l = lstsq(G, c)[0]
 
+    # Create square matrix
     L = np.matrix(squareform_diagfill(l))
 
-    #try:
-        #A = cholesky(L)
-    #except Exception as e:
-    A = sqrtm(L)
+    # Cholesky
+    A = cholesky(L)
 
+    # Update
     M = M_hat * A
     S = inv(A) * S_hat
 
