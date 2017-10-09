@@ -27,3 +27,4 @@ def describeSegments(segments):
     for segment in segments:
         descriptor = []  # TODO
         descriptors.append(descriptor)
+    return descriptors
