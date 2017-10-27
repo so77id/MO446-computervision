@@ -1,2 +1,2 @@
 # MO446-computervision
-Computer vision unicamp 2017
+Computer vision IC UNICAMP 2017
